@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IoT Sensor Dashboard - Real-time Monitoring</title>
+    <meta name="description" content="Real-time IoT sensor dashboard monitoring temperature, humidity, gas levels, smoke and presence detection from Raspberry Pi devices.">
+    
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+    
+    <!-- Chart.js for data visualization -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- Header -->
+        <header class="header">
+            <div class="header-content">
+                <div class="header-left">
+                    <div class="logo">
+                        <i class="fas fa-microchip"></i>
+                    </div>
+                    <div class="header-text">
+                        <h1>IoT Sensor Dashboard</h1>
+                        <p>Real-time monitoring</p>
+                    </div>
+                </div>
+                
+                <div class="header-right">
+                    <div class="connection-status">
+                        <div class="status-indicator" id="statusIndicator"></div>
+                        <span id="connectionText">Connecting...</span>
+                    </div>
+                    
+                    <button class="header-btn" id="alertBtn">
+                        <i class="fas fa-bell"></i>
+                        <span class="alert-badge" id="alertBadge" style="display: none;"></span>
+                    </button>
+                    
+                    <button class="header-btn">
+                        <i class="fas fa-cog"></i>
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Alert Banner -->
+        <div class="alert-banner" id="alertBanner" style="display: none;">
+            <div class="alert-content">
+                <i class="fas fa-exclamation-triangle"></i>
+                <div class="alert-text">
+                    <h3>Critical Alert</h3>
+                    <p id="alertMessage"></p>
+                </div>
+                <button class="alert-close" id="alertClose">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+        </div>
+
+        <main class="main-content">
+            <!-- Sensor Cards Grid -->
+            <div class="sensor-grid">
+                <div class="sensor-card" id="temperatureCard">
+                    <div class="sensor-header">
+                        <div class="sensor-icon-wrapper temp-icon">
+                            <i class="fas fa-thermometer-half"></i>
+                        </div>
+                        <div class="sensor-info">
+                            <h3>Temperature</h3>
+                            <span class="unit">°C</span>
+                        </div>
+                        <div class="status-dot" id="tempStatus"></div>
+                    </div>
+                    <div class="sensor-value" id="tempValue">--</div>
+                    <div class="sensor-status-text" id="tempStatusText">Loading...</div>
+                </div>
+
+                <div class="sensor-card" id="humidityCard">
+                    <div class="sensor-header">
+                        <div class="sensor-icon-wrapper humidity-icon">
+                            <i class="fas fa-tint"></i>
+                        </div>
+                        <div class="sensor-info">
+                            <h3>Humidity</h3>
+                            <span class="unit">%RH</span>
+                        </div>
+                        <div class="status-dot" id="humidityStatus"></div>
+                    </div>
+                    <div class="sensor-value" id="humidityValue">--</div>
+                    <div class="sensor-status-text" id="humidityStatusText">Loading...</div>
+                </div>
+
+                <div class="sensor-card" id="gasCard">
+                    <div class="sensor-header">
+                        <div class="sensor-icon-wrapper gas-icon">
+                            <i class="fas fa-wind"></i>
+                        </div>
+                        <div class="sensor-info">
+                            <h3>Gas Level</h3>
+                            <span class="unit">ppm</span>
+                        </div>
+                        <div class="status-dot" id="gasStatus"></div>
+                    </div>
+                    <div class="sensor-value" id="gasValue">--</div>
+                    <div class="sensor-status-text" id="gasStatusText">Loading...</div>
+                </div>
+
+                <div class="sensor-card" id="smokeCard">
+                    <div class="sensor-header">
+                        <div class="sensor-icon-wrapper smoke-icon">
+                            <i class="fas fa-exclamation-triangle"></i>
+                        </div>
+                        <div class="sensor-info">
+                            <h3>Smoke</h3>
+                            <span class="unit">Detection</span>
+                        </div>
+                        <div class="status-dot" id="smokeStatus"></div>
+                    </div>
+                    <div class="sensor-value" id="smokeValue">--</div>
+                    <div class="sensor-status-text" id="smokeStatusText">Loading...</div>
+                </div>
+
+                <div class="sensor-card" id="presenceCard">
+                    <div class="sensor-header">
+                        <div class="sensor-icon-wrapper presence-icon">
+                            <i class="fas fa-user-check"></i>
+                        </div>
+                        <div class="sensor-info">
+                            <h3>Presence</h3>
+                            <span class="unit">Detection</span>
+                        </div>
+                        <div class="status-dot" id="presenceStatus"></div>
+                    </div>
+                    <div class="sensor-value" id="presenceValue">--</div>
+                    <div class="sensor-status-text" id="presenceStatusText">Loading...</div>
+                </div>
+            </div>
+
+            <!-- Charts Section -->
+            <div class="charts-grid">
+                <div class="chart-card">
+                    <div class="chart-header">
+                        <h3>Environmental Trends</h3>
+                        <div class="chart-controls">
+                            <button class="chart-btn active">24h</button>
+                            <button class="chart-btn">7d</button>
+                            <button class="chart-btn">30d</button>
+                        </div>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="environmentChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="chart-card">
+                    <div class="chart-header">
+                        <h3>Detection Levels</h3>
+                        <div class="chart-controls">
+                            <button class="chart-btn active">24h</button>
+                            <button class="chart-btn">7d</button>
+                            <button class="chart-btn">30d</button>
+                        </div>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="detectionChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Detailed Readings Table -->
+            <div class="readings-card">
+                <div class="card-header">
+                    <h3>Detailed Sensor Readings</h3>
+                </div>
+                <div class="table-container">
+                    <table class="readings-table">
+                        <thead>
+                            <tr>
+                                <th>Sensor</th>
+                                <th>Current Value</th>
+                                <th>Min/Max (24h)</th>
+                                <th>Status</th>
+                                <th>Last Updated</th>
+                            </tr>
+                        </thead>
+                        <tbody id="readingsTableBody">
+                            <!-- Table rows will be populated by JavaScript -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- System Status -->
+            <div class="system-status-grid">
+                <div class="status-card">
+                    <div class="card-header">
+                        <h3>Raspberry Pi Status</h3>
+                    </div>
+                    <div class="status-content">
+                        <div class="status-item">
+                            <span>CPU Usage</span>
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="width: 34%"></div>
+                            </div>
+                            <span>34%</span>
+                        </div>
+                        <div class="status-item">
+                            <span>Memory Usage</span>
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="width: 58%"></div>
+                            </div>
+                            <span>58%</span>
+                        </div>
+                        <div class="status-item">
+                            <span>Temperature</span>
+                            <span>41.2°C</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="status-card">
+                    <div class="card-header">
+                        <h3>Connection Quality</h3>
+                    </div>
+                    <div class="status-content">
+                        <div class="connection-info">
+                            <div class="status-indicator connected" id="firebaseStatus"></div>
+                            <span>Firebase Connected</span>
+                        </div>
+                        <div class="status-item">
+                            <span>Latency</span>
+                            <span>23ms</span>
+                        </div>
+                        <div class="status-item">
+                            <span>Data Rate</span>
+                            <span>4.2 KB/s</span>
+                        </div>
+                        <div class="status-item">
+                            <span>Uptime</span>
+                            <span>2h 34m</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="status-card">
+                    <div class="card-header">
+                        <h3>Recent Alerts</h3>
+                    </div>
+                    <div class="alerts-content" id="alertsContent">
+                        <!-- Alerts will be populated by JavaScript -->
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="firebase-config.js"></script>
+    <script src="dashboard.js"></script>
+</body>
+</html>
