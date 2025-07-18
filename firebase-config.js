@@ -1,21 +1,21 @@
 // Firebase configuration - Replace with your actual Firebase config
 const firebaseConfig = {
-    // Replace these values with your actual Firebase project configuration
-    apiKey: "your-api-key-here",
-    authDomain: "your-project.firebaseapp.com", 
-    databaseURL: "https://your-project-default-rtdb.firebaseio.com/",
-    projectId: "your-project-id",
-    storageBucket: "your-project.appspot.com",
-    messagingSenderId: "123456789",
-    appId: "your-app-id"
+    apiKey: "AIzaSyBJK_4JMAMeRi7sEM4lvxSWzfLZMG4Kt3k",
+  authDomain: "pisense-84732.firebaseapp.com",
+  databaseURL: "https://pisense-84732-default-rtdb.firebaseio.com",
+  projectId: "pisense-84732",
+  storageBucket: "pisense-84732.firebasestorage.app",
+  messagingSenderId: "573459104833",
+ appId: "1:573459104833:web:800a4b56c2780f5b14b2c0",
+  measurementId: "G-TY2VV6PD4B"
 };
 
 // Initialize Firebase
 let database;
-let isConnected = false;
+let isConnected = true;
 
 // Mock mode for demonstration (set to false when using real Firebase)
-const MOCK_MODE = true;
+const MOCK_MODE = false;
 
 if (MOCK_MODE) {
     // Mock Firebase service for demonstration
@@ -133,7 +133,7 @@ function sendSensorDataToFirebase(sensorData) {
             console.error("Error sending sensor data:", error);
         });
     }
-}
+
 
 // Export functions for use in other scripts
 window.firebaseService = {

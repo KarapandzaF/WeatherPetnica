@@ -397,7 +397,7 @@ function updateReadingsTableData(data) {
     document.getElementById('tableRangetemperature').textContent = `${tempRange.min.toFixed(1)} / ${tempRange.max.toFixed(1)}°C`;
     document.getElementById('tableTimetemperature').textContent = formatTime(data.timestamp);
     
-    const tempStatus = getStatusInfo(data.temperature, 'temperature');
+    const tempStatus = getStatusInfo(data.temperature, 'environment/DHT11/Temp');
     document.getElementById('tableStatustemperature').innerHTML = `<span class="badge ${tempStatus.level}">${tempStatus.text}</span>`;
     
     // Humidity
